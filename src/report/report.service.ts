@@ -9,35 +9,28 @@ export class ReportService {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Relatório');
 
-    // Adiciona Cabeçalhos
     worksheet.columns = Object.keys(data[0]).map((key) => ({ header: key, key }));
 
-    // Adiciona Dados
     data.forEach((item) => {
       worksheet.addRow(item);
     });
 
-    // Envia o arquivo Excel na resposta
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
-    res.setHeader('Content-Disposition', 'attachment; filename=report.xlsx');
+    const buffer = await workbook.xlsx.writeBuffer();
 
-    await workbook.xlsx.write(res);
-    res.end();
+    res.setHeader('Content-Disposition', 'attachment; filename="report.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    res.send(buffer); 
   }
 
-  generatePdfReport(data: any[], res: Response): void {
+  async generatePdfReport(data: any[], res: Response): Promise<void> {
     const doc = new PDFDocument();
 
-    // Configura o arquivo de resposta para PDF
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="report.pdf"');
 
     doc.pipe(res);
 
-    // Adiciona o conteúdo ao PDF
     doc.fontSize(16).text('Relatório', { align: 'center' });
 
     data.forEach((item) => {
@@ -50,4 +43,3 @@ export class ReportService {
     doc.end();
   }
 }
-

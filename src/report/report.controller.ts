@@ -13,7 +13,7 @@ export class ReportController {
 
   @Post('pdf')
   async createPdfReport(@Body() data: any[], @Res() res: Response) {
-    this.reportService.generatePdfReport(data, res);
+    await this.reportService.generatePdfReport(data, res);
   }
 }
 
